@@ -1,0 +1,7 @@
+# Dependencies
+node_modules/
+
+# Keep the dist directory for GitHub Actions
+!dist/
+
+**/.DS_Store

@@ -1,0 +1,25 @@
+name: 'Replace tokens'
+description: 'Replace tokens in given files'
+author: 'JanCodeLab'
+
+inputs:
+  files:
+    description: 'Filenames (comma separated) containing tokens to replace'
+    required: true
+    default: ''
+  token-start:
+    description: 'Token start string'
+    required: false
+    default: '#{'
+  token-end:
+    description: 'Token end string'
+    required: false
+    default: '}#'
+  fail-on-missing:
+    description: 'Fail if token is missing'
+    required: false
+    default: 'false'
+
+runs:
+  using: 'node16'
+  main: 'dist/index.js'

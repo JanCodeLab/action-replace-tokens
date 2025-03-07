@@ -48,27 +48,36 @@ async function run() {
       
       while ((match = tokenRegex.exec(content)) !== null) {
         const fullToken = match[0];
-        const tokenName = match[1];
+        const tokenName = match[1].trim();
         
-        // Try to get token value from GitHub variables, secrets, and env
+        // Try to get token value in order of priority
         let tokenValue;
         
-        // First try GitHub variables
-        try {
-          tokenValue = github.context.repo[tokenName];
-        } catch (error) {
-          // Not found in repo variables
+        // 1. Check for GitHub secrets first (most secure values)
+        if (process.env[`GITHUB_SECRET_${tokenName}`] !== undefined) {
+          tokenValue = process.env[`GITHUB_SECRET_${tokenName}`];
+          core.debug(`Found value in GitHub secrets: ${tokenName}`);
         }
-        
-        // Then try secrets and environment variables
-        if (tokenValue === undefined) {
+        // 2. Check for GitHub variables
+        else if (process.env[`GITHUB_VAR_${tokenName}`] !== undefined) {
+          tokenValue = process.env[`GITHUB_VAR_${tokenName}`];
+          core.debug(`Found value in GitHub variables: ${tokenName}`);
+        }
+        // 3. Check repo context for repository-specific values
+        else if (github.context.repo && tokenName in github.context.repo) {
+          tokenValue = github.context.repo[tokenName];
+          core.debug(`Found value in repo context: ${tokenName}`);
+        }
+        // 4. Check general environment variables as fallback
+        else if (process.env[tokenName] !== undefined) {
           tokenValue = process.env[tokenName];
+          core.debug(`Found value in environment variables: ${tokenName}`);
         }
         
         // If token value is found, replace it in the content
         if (tokenValue !== undefined) {
           replacedContent = replacedContent.replace(fullToken, tokenValue);
-          core.debug(`Replaced token: ${tokenName}`);
+          core.info(`Replaced token: ${tokenName}`);
         } else {
           missingTokens.push(tokenName);
           core.warning(`Token not found: ${tokenName}`);

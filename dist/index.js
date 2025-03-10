@@ -31840,6 +31840,7 @@ async function run() {
     const failOnMissing = core.getInput('fail-on-missing').toLowerCase() === 'true';
     const githubToken = core.getInput('github-token');
     core.info('GitHub API client:'+githubToken);
+    core.info('GitHub API client2:'+process.env.GITHUB_TOKEN);
     // Log repo context for debugging
     core.info(`Repository: ${github.context.repo.owner}/${github.context.repo.repo}`);
 

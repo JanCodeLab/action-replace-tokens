@@ -10,6 +10,17 @@ async function run() {
     const tokenStart = core.getInput('token-start');
     const tokenEnd = core.getInput('token-end');
     const failOnMissing = core.getInput('fail-on-missing').toLowerCase() === 'true';
+    const githubToken = core.getInput('github-token');
+    
+    // Log repo context for debugging
+    core.info(`Repository: ${github.context.repo.owner}/${github.context.repo.repo}`);
+
+    // Initialize octokit client if token is provided
+    let octokit = null;
+    if (githubToken) {
+      octokit = github.getOctokit(githubToken);
+      core.debug('GitHub API client initialized');
+    }
     
     // Validate inputs
     if (files.length === 0 || files[0] === '') {
@@ -53,23 +64,51 @@ async function run() {
         // Try to get token value in order of priority
         let tokenValue;
         
-        // 1. Check for GitHub secrets first (most secure values)
-        if (process.env[`GITHUB_SECRET_${tokenName}`] !== undefined) {
-          tokenValue = process.env[`GITHUB_SECRET_${tokenName}`];
-          core.debug(`Found value in GitHub secrets: ${tokenName}`);
+        // 1. Try to get from GitHub repository variables via API (if token provided)
+        if (octokit) {
+          try {
+            // Get repository variables
+            // Note: This requires appropriate permissions on the token
+            const repoVars = await octokit.rest.actions.getRepoVariable({
+              owner: github.context.repo.owner,
+              repo: github.context.repo.repo,
+              name: tokenName
+            }).catch(e => {
+              core.debug(`No repo variable found for ${tokenName}: ${e.message}`);
+              return null;
+            });
+            
+            if (repoVars && repoVars.data && repoVars.data.value) {
+              tokenValue = repoVars.data.value;
+              core.debug(`Found value in GitHub repo variables: ${tokenName}`);
+            }
+          } catch (error) {
+            core.debug(`Error accessing repo variable ${tokenName}: ${error.message}`);
+          }
         }
-        // 2. Check for GitHub variables
-        else if (process.env[`GITHUB_VAR_${tokenName}`] !== undefined) {
-          tokenValue = process.env[`GITHUB_VAR_${tokenName}`];
-          core.debug(`Found value in GitHub variables: ${tokenName}`);
+        
+        // 2. Check for GitHub secrets (accessed through environment variables)
+        if (tokenValue === undefined && process.env[tokenName] !== undefined) {
+          tokenValue = process.env[tokenName];
+          core.debug(`Found value in environment variables (likely a secret): ${tokenName}`);
         }
-        // 3. Check repo context for repository-specific values
-        else if (github.context.repo && tokenName in github.context.repo) {
-          tokenValue = github.context.repo[tokenName];
-          core.debug(`Found value in repo context: ${tokenName}`);
+        
+        // 3. Check for special case: repository name and owner
+        if (tokenValue === undefined && tokenName === 'repo' && github.context.repo.repo) {
+          tokenValue = github.context.repo.repo;
+          core.debug(`Using repository name for token: ${tokenName}`);
         }
-        // 4. Check general environment variables as fallback
-        else if (process.env[tokenName] !== undefined) {
+        else if (tokenValue === undefined && tokenName === 'owner' && github.context.repo.owner) {
+          tokenValue = github.context.repo.owner;
+          core.debug(`Using repository owner for token: ${tokenName}`);
+        }
+        
+        // 4. Check for environment variables as fallback
+        if (tokenValue === undefined && process.env[`GITHUB_${tokenName}`] !== undefined) {
+          tokenValue = process.env[`GITHUB_${tokenName}`];
+          core.debug(`Found value in GITHUB_ prefixed environment variables: ${tokenName}`);
+        }
+        else if (tokenValue === undefined && process.env[tokenName] !== undefined) {
           tokenValue = process.env[tokenName];
           core.debug(`Found value in environment variables: ${tokenName}`);
         }

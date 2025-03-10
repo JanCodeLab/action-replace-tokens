@@ -1,56 +1,57 @@
-# Search Files Action
+# Replace Tokens Action
 
-This GitHub Action searches for files by extension and provides folder exclusion capabilities. It's built using PowerShell and can be used across your organization.
+This GitHub Action replaces tokens in specified files. It's built using Node.js and can be used across your organization.
 
 ## Usage
 
 ```yaml
-- name: Search for files
-  uses: JanCodeLab/action-search-files@v0.1
-  id: search
+- name: Replace tokens in files
+  uses: JanCodeLab/action-replace-tokens@v1
+  id: replace-tokens
   with:
-    file-extensions: 'cs,js,ts'  # Comma-separated file extensions
-    directory: 'src'  # Directory to search in
-    recursive: true  # Search in subdirectories
-    excluded-folders: 'node_modules,bin,obj'  # Folders to exclude
+    files: 'file1.txt,file2.txt'  # Comma-separated list of files
+    token-start: '#{'  # Token start delimiter
+    token-end: '}#'  # Token end delimiter
+    fail-on-missing: 'true'  # Fail if any token is missing
+    github-token: '${{ secrets.GITHUB_TOKEN }}'  # GitHub token to retrieve repo variables
 ```
 
 ## Inputs
 
 | Input | Description | Required | Default |
 |-------|-------------|----------|---------|
-| `file-extensions` | File extensions to search (comma separated) | No | `*` |
-| `directory` | Directory to search within | No | `.` |
-| `recursive` | Search recursively in subdirectories | No | `true` |
-| `excluded-folders` | Folders to exclude from search (comma separated) | No | `''` |
+| `files` | Filenames (comma separated) containing tokens to replace | Yes | `''` |
+| `token-start` | Token start string | No | `#{` |
+| `token-end` | Token end string | No | `}#` |
+| `fail-on-missing` | Fail if token is missing | No | `false` |
+| `github-token` | GitHub token to retrieve repo variables | No | `''` |
 
 ## Outputs
 
-| Output | Description |
-|--------|-------------|
-| `files` | files that match the search criteria in Comma-separated list |
-| `match-count` | Number of files found |
+None
 
-## Example: Finding C# files excluding build artifacts
+## Example: Replacing tokens in multiple files
 
 ```yaml
 jobs:
-  find-cs-files:
+  replace-tokens-job:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       
-      - name: Find C# files
-        id: cs-finder
-        uses: JanCodeLab/action-search-files@v0.1
+      - name: Replace tokens in files
+        id: replace-tokens
+        uses: JanCodeLab/action-replace-tokens@v1
         with:
-          file-extensions: 'cs'
-          excluded-folders: 'bin,obj,packages,TestResults'
+          files: 'file1.txt,file2.txt'
+          token-start: '#{'
+          token-end: '}#'
+          fail-on-missing: 'true'
+          github-token: '${{ secrets.GITHUB_TOKEN }}'
           
       - name: Show results
         run: |
-          echo "Found ${{ steps.cs-finder.outputs.match-count }} C# files"
-          echo "${{ steps.cs-finder.outputs.files }}"
+          echo "Token replacement completed"
 ```
 
 ## Changelog

@@ -31840,7 +31840,6 @@ async function run() {
     const failOnMissing = core.getInput('fail-on-missing').toLowerCase() === 'true';
     const githubToken = core.getInput('github-token');
     core.info('GitHub API client:'+githubToken);
-    core.info('GitHub API client2:'+process.env.GITHUB_TOKEN);
     // Log repo context for debugging
     core.info(`Repository: ${github.context.repo.owner}/${github.context.repo.repo}`);
 
@@ -31893,8 +31892,14 @@ async function run() {
         // Try to get token value in order of priority
         let tokenValue;
         
+        // 1. Check for environment variables (which would be explicitly set in workflow)
+        let envTokenValue = process.env[tokenName];
+        if (envTokenValue !== undefined) {
+          tokenValue = envTokenValue;
+        }
+
         // 1. Try to get from GitHub repository variables via API (if token provided)
-        if (octokit) {
+        if (tokenValue === undefined && octokit) {
           try {
             // Get repository variables
             // Note: This requires appropriate permissions on the token
@@ -31914,32 +31919,6 @@ async function run() {
           } catch (error) {
             core.debug(`Error accessing repo variable ${tokenName}: ${error.message}`);
           }
-        }
-        
-        // 2. Check for GitHub secrets (accessed through environment variables)
-        if (tokenValue === undefined && process.env[tokenName] !== undefined) {
-          tokenValue = process.env[tokenName];
-          core.debug(`Found value in environment variables (likely a secret): ${tokenName}`);
-        }
-        
-        // 3. Check for special case: repository name and owner
-        if (tokenValue === undefined && tokenName === 'repo' && github.context.repo.repo) {
-          tokenValue = github.context.repo.repo;
-          core.debug(`Using repository name for token: ${tokenName}`);
-        }
-        else if (tokenValue === undefined && tokenName === 'owner' && github.context.repo.owner) {
-          tokenValue = github.context.repo.owner;
-          core.debug(`Using repository owner for token: ${tokenName}`);
-        }
-        
-        // 4. Check for environment variables as fallback
-        if (tokenValue === undefined && process.env[`GITHUB_${tokenName}`] !== undefined) {
-          tokenValue = process.env[`GITHUB_${tokenName}`];
-          core.debug(`Found value in GITHUB_ prefixed environment variables: ${tokenName}`);
-        }
-        else if (tokenValue === undefined && process.env[tokenName] !== undefined) {
-          tokenValue = process.env[tokenName];
-          core.debug(`Found value in environment variables: ${tokenName}`);
         }
         
         // If token value is found, replace it in the content

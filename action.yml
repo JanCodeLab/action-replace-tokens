@@ -20,7 +20,7 @@ inputs:
     required: false
     default: 'false'
   github-token:
-    description: 'GitHub token to retrieve token values'
+    description: 'GitHub token to retrieve repo variables'
     required: false
     default: ''
 

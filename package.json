@@ -1,0 +1,22 @@
+{
+  "name": "action-replace-tokens",
+  "version": "1.0.0",
+  "description": "GitHub Action to replace tokens in given files",
+  "main": "replace-tokens.js",
+  "scripts": {
+    "build": "ncc build replace-tokens.js -o dist",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "github",
+    "action",
+    "replace",
+    "tokens"
+  ],
+  "author": "JanCodeLab",
+  "license": "MIT",
+  "dependencies": {
+    "@actions/core": "^1.10.0",
+    "@actions/github": "^6.0.0"
+  }
+}

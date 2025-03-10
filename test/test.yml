@@ -34,6 +34,7 @@ jobs:
           token-start: '#{'
           token-end: '}#'
           fail-on-missing: false
+          github-token: ${{ secrets.GITHUB_TOKEN }}
       
       - name: Display result
         run: cat test-tokens.txt

@@ -19,6 +19,10 @@ inputs:
     description: 'Fail if token is missing'
     required: false
     default: 'false'
+  github-token:
+    description: 'GitHub token to retrieve token values'
+    required: false
+    default: ''
 
 runs:
   using: 'node16'

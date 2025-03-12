@@ -1,6 +1,6 @@
 {
   "name": "action-replace-tokens",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "description": "GitHub Action to replace tokens in given files",
   "main": "replace-tokens.js",
   "scripts": {

@@ -6,7 +6,7 @@ This GitHub Action replaces tokens in specified files. It's built using Node.js 
 
 ```yaml
 - name: Replace tokens in files
-  uses: JanCodeLab/action-replace-tokens@v1
+  uses: JanCodeLab/action-replace-tokens@latest
   id: replace-tokens
   with:
     files: 'file1.txt,file2.txt'  # Comma-separated list of files
@@ -41,7 +41,7 @@ jobs:
       
       - name: Replace tokens in files
         id: replace-tokens
-        uses: JanCodeLab/action-replace-tokens@v1
+        uses: JanCodeLab/action-replace-tokens@latest
         with:
           files: 'file1.txt,file2.txt'
           token-start: '#{'
@@ -55,7 +55,7 @@ jobs:
 ```
 
 ## Changelog
-- v1.1
+- v1.1 (latest)
   - Refactored log lines of the action
   - Optimized function
 - v1

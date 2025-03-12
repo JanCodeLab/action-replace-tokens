@@ -55,3 +55,10 @@ jobs:
 ```
 
 ## Changelog
+- v1.1
+  - Refactored log lines of the action
+  - Optimized function
+- v1
+  - Initial implementation of token replacement.
+  - Support for github repository variables. Requires github token with appropriate permissions
+  - Read tokens from environment variables of the action

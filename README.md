@@ -55,7 +55,9 @@ jobs:
 ```
 
 ## Changelog
-- v1.1 (latest)
+- v1.2 (latest)
+  - Fixed versioning
+- v1.1 
   - Refactored log lines of the action
   - Optimized function
 - v1

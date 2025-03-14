@@ -1,4 +1,5 @@
 # Replace Tokens Action
+[![Release](https://github.com/JanCodeLab/action-replace-tokens/actions/workflows/release.yml/badge.svg)](https://github.com/JanCodeLab/action-replace-tokens/actions/workflows/release.yml)
 
 This GitHub Action replaces tokens in specified files. It's built using Node.js and can be used across your organization.
 

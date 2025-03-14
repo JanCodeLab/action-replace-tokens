@@ -1,0 +1,22 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+ 
+  workflow_dispatch:
+    inputs:
+      is-latest:
+        description: 'Is latest version'
+        required: false
+        default: true
+        type: boolean
+        
+jobs:
+  add-tag:
+    name: Release action
+    uses: JanCodeLab/workflows/.github/workflows/add-tag-from-package.yml@latest
+    with:
+      version-file: './package.json'
+      is-latest: ${{ github.event_name == 'push' || github.event.inputs.is-latest == 'true' }}
